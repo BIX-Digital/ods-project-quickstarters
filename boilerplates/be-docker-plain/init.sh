@@ -11,6 +11,9 @@ while [[ "$#" > 0 ]]; do case $1 in
   -c=*|--component=*) COMPONENT="${1#*=}";;
   -c|--component) COMPONENT="$2"; shift;;
 
+  -g=*|--group=*) GROUP="${1#*=}";;
+  -g|--group) GROUP="$2"; shift;;
+
   -t=*|--target-dir=*) TARGET_DIR="${1#*=}";;
   -t|--target-dir) TARGET_DIR="$2"; shift;;
 
@@ -28,5 +31,11 @@ cd $COMPONENT
 
 sudo chown -R $OWNER .
 
-echo "copy custom files from quickstart to generated project"
+echo "fix nexus repo path"
+repo_path=$(echo "$GROUP" | tr . /)
+sed -i.bak "s|org/opendevstack/projectId|$repo_path|g" $SCRIPT_DIR/files/docker/Dockerfile
+rm $SCRIPT_DIR/files/docker/Dockerfile.bak
+
+echo "copy files from quickstart to generated project"
 cp -rv $SCRIPT_DIR/files/. .
+
