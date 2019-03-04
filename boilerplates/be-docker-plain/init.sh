@@ -38,4 +38,3 @@ rm $SCRIPT_DIR/files/docker/Dockerfile.bak
 
 echo "copy files from quickstart to generated project"
 cp -rv $SCRIPT_DIR/files/. .
-
