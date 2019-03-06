@@ -21,7 +21,7 @@ node {
     dockerRegistry = env.DOCKER_REGISTRY
 }
 
-library identifier: 'ods-library@production', retriever: modernSCM(
+library identifier: 'ods-library@v1.0.1', retriever: modernSCM(
     [$class       : 'GitSCMSource',
         remote       : sharedLibraryRepository,
         credentialsId: credentialsId])
