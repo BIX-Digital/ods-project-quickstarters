@@ -1,0 +1,5 @@
+namespace cd
+selector app=jenkins-slave-lua-resty
+param-dir ../../../../ods-configuration/ods-project-quickstarters/jenkins-slaves/lua-resty/ocp-config
+
+bc,is
