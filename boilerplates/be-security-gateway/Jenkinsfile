@@ -1,0 +1,55 @@
+def final projectId = '@project_id@'
+def final componentId = '@component_id@'
+def final credentialsId = "${projectId}-cd-cd-user-with-password"
+def sharedLibraryRepository
+def dockerRegistry
+node {
+  sharedLibraryRepository = env.SHARED_LIBRARY_REPOSITORY
+  dockerRegistry = env.DOCKER_REGISTRY
+}
+
+library identifier: 'ods-library@1.1.x', retriever: modernSCM(
+  [$class: 'GitSCMSource',
+   remote: sharedLibraryRepository,
+   credentialsId: credentialsId])
+
+// See readme of shared library for usage and customization.
+odsPipeline(
+  image: "${dockerRegistry}/cd/jenkins-slave-lua-resty",
+  projectId: projectId,
+  componentId: componentId,
+  branchToEnvironmentMapping: [
+    'master': 'test',
+    '*': 'dev'
+  ]
+) { context ->
+  stageScanForSonarqube(context)
+  stageBuild(context)
+  stageStartOpenshiftBuild(context)
+  stageDeployToOpenshift(context)
+}
+
+def stageBuild(def context) {
+  stage('Build') {
+    withEnv(["TAGVERSION=${context.tagversion}"]) {
+      // testing stage
+      println("Testing your Lua ...")
+
+      // see: https://luaunit.readthedocs.io/en/latest
+      // one can also test specific nginx blocks with resty-cli (https://github.com/openresty/resty-cli)
+      def status = sh(script: "resty -I lua/ lua/test/test.lua --output junit --name lua/test/test.xml", returnStatus: true)
+
+      println("Loading JUnit XML reporting")
+      junit 'lua/test/test.xml'
+
+      if (status != 0) {
+        error "Build failed!"
+      }
+
+    }
+    // prepare files for the docker build in openshift
+    println("Preparing files for OpenShift build ...")
+    sh "cp -r lua docker"
+    sh "cp *.conf docker"
+  }
+}
