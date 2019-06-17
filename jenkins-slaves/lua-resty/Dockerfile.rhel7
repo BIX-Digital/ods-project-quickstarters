@@ -1,0 +1,33 @@
+FROM cd/jenkins-slave-base
+
+LABEL maintainer="Gerard Castillo <gerard.castillo@boehringer-ingelheim.com>"
+
+ENV INSTALL_PKGS="yum-utils"
+ENV OPENRESTY_RESTY_VERSION="1.13.6.2-1.el7"
+ENV LUAUNIT_VERSION="LUAUNIT_V3_3"
+
+# Add and install openresty-resty repo
+RUN set -x \
+    && yum install -y --setopt=tsflags=nodocs $INSTALL_PKGS \
+    && yum-config-manager -y --add-repo https://openresty.org/package/rhel/openresty.repo \
+    && yum install -y openresty-resty-${OPENRESTY_RESTY_VERSION} \
+    && yum clean all \
+    && rm -rf /var/cache/yum/*
+
+# Get LuaUnit, place it to lualib folder and cleanup
+RUN cd /tmp \
+    && git clone https://github.com/bluebird75/luaunit.git \
+    && cd luaunit \
+    && git checkout ${LUAUNIT_VERSION} \
+    && cp /tmp/luaunit/luaunit.lua /usr/local/openresty/site/lualib/ \
+    && rm -rf luaunit
+
+# Continue as non-root
+RUN chown -R 1001:0 $HOME && \
+    chmod -R g+rw $HOME
+USER 1001
+
+# Checking resty and luaunit installations
+RUN which resty \
+    && resty -e 'require("luaunit")' \
+    && resty -V
