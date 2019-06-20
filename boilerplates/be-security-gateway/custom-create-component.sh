@@ -80,7 +80,7 @@ for devenv in dev test ; do
     oc set env dc/${COMPONENT} --env=WAF_MODSECURITY=off -n ${PROJECT}-${devenv}
     oc set env dc/${COMPONENT} --env=SYSLOG_NG=off -n ${PROJECT}-${devenv}
     oc set env dc/${COMPONENT} --env=SYSLOG_NG_TO=127.0.0.1 -n ${PROJECT}-${devenv}
-    oc set env dc/${COMPONENT} --env=SYSLOG_NG_TAGS=bix-${PROJECT}-${devenv} -n ${PROJECT}-${devenv}
+    oc set env dc/${COMPONENT} --env=SYSLOG_NG_TAGS=octest-${PROJECT}-${devenv} -n ${PROJECT}-${devenv}
     oc set triggers dc/${COMPONENT} --from-config -n ${PROJECT}-${devenv}
 
     # setting up resource limits: maximum of 4 CPU and 4GB memory, minimum of 0.5 CPU and 512MB memory
