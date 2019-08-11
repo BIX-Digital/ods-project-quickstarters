@@ -27,6 +27,11 @@ while [[ "$#" > 0 ]]; do case $1 in
 
   -d|--debug) DEBUG="true"; shift;;
 
+  -st|--skip-tag) SKIP_TAGS="true"; shift;;
+
+  -gb=*|--git-branch=*) GIT_BRANCH="${1#*=}";;
+  -gb|--git-branch) GIT_BRANCH="$2"; shift;;
+
   *) echo "Unknown parameter passed: $1"; usage; exit 1;;
 esac; shift; done
 
@@ -59,6 +64,11 @@ if [[ -z "$OPENSHIFT_HOST" ]]; then
     echo "[ERROR]: No OpenShift host set - required value"
     usage
     exit 1
+fi
+
+if [[ -z "$GIT_BRANCH" ]]; then
+    echo "[DEBUG]: no target git branch set - defaulting to master"
+    GIT_BRANCH=master
 fi
 
 echo "Provided params: \
@@ -101,9 +111,9 @@ else
   verbose="-v true"
 fi
 echo "[INFO]: export resources from $SOURCE_ENV"
-sh export.sh -p $PROJECT_ID -h $OPENSHIFT_HOST -e $SOURCE_ENV -g $git_url -cpj $verbose
+sh export.sh -p $PROJECT_ID -h $OPENSHIFT_HOST -e $SOURCE_ENV -g $git_url -gb $GIT_BRANCH -cpj $verbose
 echo "[INFO]: import resources into $TARGET_ENV"
-sh import.sh -h $OPENSHIFT_HOST -p $PROJECT_ID -e $SOURCE_ENV -g $git_url -n $TARGET_PROJECT $verbose --apply true
+sh import.sh -h $OPENSHIFT_HOST -p $PROJECT_ID -e $SOURCE_ENV -g $git_url -gb $GIT_BRANCH -n $TARGET_PROJECT $verbose --apply true
 
 echo "[INFO]: cleanup workplace"
 cd ..
