@@ -109,6 +109,11 @@ echo "[INFO]: cleanup workplace"
 cd ..
 rm -rf oc_migration_scripts
 
+if [[ ! -z "$SKIP_TAGS" ]]; then
+  echo "[INFO] Skipping imagestream tagging"
+  return
+fi
+
 echo "[INFO]: import image tags from $SOURCE_ENV"
 oc get is --no-headers -n $SOURCE_PROJECT | awk '{print $2}' | while read DOCKER_REPO; do
   echo "[INFO]: importing latest image from ${DOCKER_REPO}"
