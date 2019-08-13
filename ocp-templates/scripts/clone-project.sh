@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -e
 
 usage() {
     echo "usage: sh $0 -p <project id> -o <openshift host> -b <bitbucket host> -c <http basic auth credentials \
@@ -25,12 +25,12 @@ while [[ "$#" > 0 ]]; do case $1 in
   -t=*|--target-env=*) TARGET_ENV="${1#*=}";;
   -t|--target-env) TARGET_ENV="$2"; shift;;
 
-  -d|--debug) DEBUG="true"; shift;;
+  -gb=*|--gitbranch=*) GIT_BRANCH="${1#*=}";;
+  -gb|--gitbranch) GIT_BRANCH="$2"; shift;;
 
-  -st|--skip-tag) SKIP_TAGS="true"; shift;;
+  -d|--debug) DEBUG=true;;
 
-  -gb=*|--git-branch=*) GIT_BRANCH="${1#*=}";;
-  -gb|--git-branch) GIT_BRANCH="$2"; shift;;
+  -st|--skiptags) SKIP_TAGS;;
 
   *) echo "Unknown parameter passed: $1"; usage; exit 1;;
 esac; shift; done
