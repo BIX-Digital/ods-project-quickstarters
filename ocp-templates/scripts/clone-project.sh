@@ -30,7 +30,7 @@ while [[ "$#" > 0 ]]; do case $1 in
 
   -d|--debug) DEBUG=true;;
 
-  -st|--skiptags) SKIP_TAGS;;
+  -st|--skiptags) SKIP_TAGS=true;;
 
   *) echo "Unknown parameter passed: $1"; usage; exit 1;;
 esac; shift; done
